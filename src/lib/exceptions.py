@@ -1,0 +1,2 @@
+class SteamApiException(Exception):
+    pass

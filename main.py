@@ -1,8 +1,15 @@
 from flask import Flask
+from dotenv import load_dotenv
+from src.steam_api_wrapper import get_owned_games
 
 app = Flask(__name__)
 
+load_dotenv()
+
 
 @app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
+def home():
+    return get_owned_games(), 200
+
+
+app.run()
