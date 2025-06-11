@@ -7,6 +7,7 @@ from src.database.database_wrapper import (
     add_game,
     add_player_game_ref,
     clean_player_games,
+    get_shared_games,
 )
 from src.database.entity_factory import create_player, create_game, create_reference
 import logging
@@ -16,6 +17,11 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 load_dotenv()
+
+
+@app.errorhandler(Exception)
+def general_exception_handler(e):
+    return str(e), 500
 
 
 @app.route("/")
@@ -48,11 +54,12 @@ def refresh_shared_games():
 
 @app.route("/shared", methods=["POST"])
 def get_shared_games():
-    # because this is made as a simple api I don't want to put the time and effort to
-    # set up a database so having a simple file that can be updated regularly should
-    # be sufficient to keep track of who has what game
-    # TODO: read from a json file each read
-    pass
+    steam_ids = request.form.getlist("steam_ids")
+    games = get_shared_games(steam_ids), 200
+    if games:
+        return games, 200
+    else:
+        return "no shared games", 200
 
 
 app.run(debug=True)

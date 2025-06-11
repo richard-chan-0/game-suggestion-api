@@ -64,3 +64,33 @@ def test_clean_player_games():
     dbw.clean_player_games("1")
     refs = dbw.refs.all()
     assert refs == []
+
+
+def test_get_shared_games():
+    dbw.add_player(Player(steam_id="1", first_name="A", last_name="Z"))
+    dbw.add_player(Player(steam_id="2", first_name="B", last_name="Y"))
+    dbw.add_game(Game(app_id="g1", name="TestGame"))
+    dbw.add_game(Game(app_id="g2", name="TestGame 2"))
+    dbw.add_game(Game(app_id="g3", name="TestGame 3"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="1", app_id="g1"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="2", app_id="g1"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="1", app_id="g2"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="2", app_id="g2"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="1", app_id="g3"))
+
+    shared = dbw.get_shared_games(["1", "2"])
+    assert shared == ["TestGame", "TestGame 2"]
+
+
+def test_get_shared_games_no_shared():
+    dbw.add_player(Player(steam_id="1", first_name="A", last_name="Z"))
+    dbw.add_player(Player(steam_id="2", first_name="B", last_name="Y"))
+    dbw.add_game(Game(app_id="g1", name="TestGame"))
+    dbw.add_game(Game(app_id="g2", name="TestGame 2"))
+    dbw.add_game(Game(app_id="g3", name="TestGame 3"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="1", app_id="g1"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="1", app_id="g2"))
+    dbw.add_player_game_ref(PlayerGameRef(steam_id="2", app_id="g3"))
+
+    shared = dbw.get_shared_games(["1", "2"])
+    assert shared == []
