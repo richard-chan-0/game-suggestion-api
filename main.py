@@ -26,8 +26,8 @@ def home():
 @app.route("/add-player", methods=["POST"])
 def ready_player():
     steam_id = request.form.get("steam_id")
-    first_name = request.form.get("first_name")
-    last_name = request.form.get("last_name")
+    first_name = request.form.get("first_name").lower()
+    last_name = request.form.get("last_name").lower()
 
     player = create_player(steam_id, first_name, last_name)
     add_player(player)
