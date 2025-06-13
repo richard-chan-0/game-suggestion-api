@@ -1,7 +1,7 @@
 from flask import Flask, request
 from dotenv import load_dotenv
 from src.steam.steam_api_wrapper import get_owned_games
-from src.database.database_wrapper import (
+from src.database.wrapper.database_wrapper import (
     add_player,
     get_all_players,
     add_game,

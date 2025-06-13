@@ -1,0 +1,47 @@
+from tinydb import TinyDB, Query
+from dataclasses import asdict
+from src.database.entities import *
+from src.lib.exceptions import DataException
+import logging
+
+logger = logging.getLogger(__name__)
+
+db = TinyDB("db.json")
+players = db.table("players")
+
+PlayerQuery = Query()
+
+
+def read_player(steam_id: str):
+    logger.info("finding player")
+    players_found = players.search(PlayerQuery.steam_id == steam_id)
+    return {} if not players_found else players_found[0]
+
+
+def get_player_id(steam_id):
+    logger.info("finding player id")
+    return players.get(PlayerQuery.steam_id == steam_id).doc_id
+
+
+def add_player(player: Player):
+    logger.info("inserting new player")
+    existing_player = read_player(player.steam_id)
+    if existing_player:
+        raise DataException("player already onboarded")
+
+    return players.insert(asdict(player))
+
+
+def get_all_players():
+    return [player.doc_id for player in players.all()]
+
+
+def remove_player(steam_id: str):
+    players.remove(PlayerQuery.steam_id == steam_id)
+
+
+def update_player(steam_id: str, updates: dict):
+    id = get_player_id(steam_id)
+    if not id:
+        raise DataException("no player found")
+    players.update(updates, doc_ids=[id])

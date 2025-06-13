@@ -16,5 +16,5 @@ class Game:
 
 @dataclass
 class PlayerGameRef:
-    steam_id: str
-    app_id: str
+    player_id: str
+    game_id: str
