@@ -26,15 +26,10 @@ def test_add_and_read_player():
 
 
 def test_add_player_duplicate():
-    """
-    insert a duplicate player scenario, no duplicates should be inserted
-    """
+    player = Player(steam_id="123", first_name="test", last_name="user")
+    pw.add_player(player)
     with raises(DataException):
-        player = Player(steam_id="123", first_name="test", last_name="user")
         pw.add_player(player)
-        pw.add_player(player)
-        all_players = pw.players.all()
-        assert len(all_players) == 1
 
 
 def test_remove_player():
@@ -59,8 +54,6 @@ def test_update_player():
     pw.update_player("123", new_info)
     updated_player = pw.read_player("789")
     assert len(pw.get_all_players()) == 1
-    print(updated_player)
-    print({**new_info, "last_name": "user"})
     assert updated_player == {**new_info, "last_name": "user"}
 
 

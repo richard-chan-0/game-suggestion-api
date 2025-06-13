@@ -12,6 +12,32 @@ games = db.table("games")
 GameQuery = Query()
 
 
+def read_game(name: str):
+    logger.info("searching for game with name: %s", name)
+    existing_game = games.search(GameQuery.name == name)
+    return existing_game[0] if existing_game else {}
+
+
+def get_game_id(name: str):
+    existing_game = read_game(name)
+    return existing_game.doc_id if existing_game else -1
+
+
 def add_game(game: Game):
     logger.info("inserting new game: %s", game.name)
-    games.insert(asdict(game))
+    existing_game = read_game(game.name)
+    if existing_game:
+        raise DataException(f"game already exists: {existing_game['name']}")
+    return games.insert(asdict(game))
+
+
+def remove_game(name: str):
+    logger.info("removing game %s", name)
+    games.remove(GameQuery.name == name)
+
+
+def update_game(name: str, updates: dict):
+    game_id = get_game_id(name)
+    if game_id == -1:
+        raise DataException("game does not exist")
+    games.update(updates, doc_ids=[game_id])

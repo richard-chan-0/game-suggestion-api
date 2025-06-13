@@ -20,7 +20,8 @@ def read_player(steam_id: str):
 
 def get_player_id(steam_id):
     logger.info("finding player id")
-    return players.get(PlayerQuery.steam_id == steam_id).doc_id
+    existing_player = read_player(steam_id)
+    return existing_player.doc_id if existing_player else -1
 
 
 def add_player(player: Player):
@@ -42,6 +43,6 @@ def remove_player(steam_id: str):
 
 def update_player(steam_id: str, updates: dict):
     id = get_player_id(steam_id)
-    if not id:
+    if id == -1:
         raise DataException("no player found")
     players.update(updates, doc_ids=[id])
