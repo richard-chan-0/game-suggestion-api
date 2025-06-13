@@ -12,10 +12,32 @@ refs = db.table("player_game_ref")
 PlayerGameRefQuery = Query()
 
 
-def add_player_game_ref(player_game_ref: PlayerGameRef):
+def get_refs_for_players(player_ids: list[int]):
+    return refs.search(PlayerGameRefQuery.player_id.one_of(player_ids))
+
+
+def get_refs_for_player(player_id: int):
+    return refs.search(PlayerGameRef.player_id == player_id)
+
+
+def get_ref_id(player_game_ref: PlayerGameRef):
+    existing_refs = refs.search(
+        (PlayerGameRefQuery.player_id == player_game_ref.player_id)
+        & (PlayerGameRefQuery.game_id == player_game_ref.game_id)
+    )
+    return existing_refs[0] if existing_refs else {}
+
+
+def add_ref(player_game_ref: PlayerGameRef):
     logger.info("inserting reference")
+    if get_ref_id(player_game_ref):
+        raise DataException("reference already exists")
     refs.insert(asdict(player_game_ref))
 
 
-def clean_player_games(steam_id: str):
-    refs.remove(PlayerGameRefQuery.steam_id == steam_id)
+def remove_player_refs(player_id: int):
+    refs.remove(PlayerGameRefQuery.player_id == player_id)
+
+
+def remove_game_refs(game_id: int):
+    refs.remove(PlayerGameRefQuery.game_id == game_id)

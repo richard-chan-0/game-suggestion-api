@@ -23,6 +23,14 @@ def get_game_id(name: str):
     return existing_game.doc_id if existing_game else -1
 
 
+def get_game(game_id: int):
+    logger.info("searching for game")
+    game = games.get(doc_id=game_id)
+    if not game:
+        raise DataException("no game found")
+    return game
+
+
 def add_game(game: Game):
     logger.info("inserting new game: %s", game.name)
     existing_game = read_game(game.name)

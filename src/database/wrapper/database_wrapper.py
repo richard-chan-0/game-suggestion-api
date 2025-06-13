@@ -1,26 +1,30 @@
-from src.database.wrapper.player_wrapper import *
-from src.database.wrapper.game_wrapper import *
-from src.database.wrapper.ref_wrapper import *
+from src.database.wrapper import player_wrapper, game_wrapper, ref_wrapper
+from src.lib.exceptions import DataException
+
+
+def process_refs_and_get_shared_games(player_game_refs, steam_ids):
+    all_games = {}
+    for ref in player_game_refs:
+        game_id = ref["game_id"]
+        player_id = ref["player_id"]
+        if game_id not in all_games:
+            all_games[game_id] = [player_id]
+        else:
+            all_games[game_id].append(player_id)
+
+    return [
+        game_id
+        for game_id, player_id in all_games.items()
+        if len(steam_ids) == len(player_id)
+    ]
 
 
 def get_shared_games(steam_ids: list[str]):
-    player_game_refs = refs.search(PlayerGameRefQuery.steam_id.one_of(steam_ids))
+    player_ids = [player_wrapper.get_player_id(steam_id) for steam_id in steam_ids]
+    player_game_refs = ref_wrapper.get_refs_for_players(player_ids)
     if not player_game_refs:
         raise DataException("no data found")
-    all_games = {}
-    for ref in player_game_refs:
-        app_id = ref["app_id"]
-        steam_id = ref["steam_id"]
-        if app_id not in all_games:
-            all_games[app_id] = [steam_id]
-        else:
-            all_games[app_id].append(steam_id)
 
-    shared_ids = [
-        app_id
-        for app_id, players in all_games.items()
-        if len(players) == len(steam_ids)
-    ]
-
-    shared_games = games.search(GameQuery.app_id.one_of(shared_ids))
+    shared_ids = process_refs_and_get_shared_games(player_game_refs, steam_ids)
+    shared_games = [game_wrapper.get_game(game_id) for game_id in shared_ids]
     return [game["name"] for game in shared_games]
