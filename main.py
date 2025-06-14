@@ -27,8 +27,6 @@ def ready_player():
 
 @app.route("/refresh", methods=["GET"])
 def refresh_shared_games():
-    # TODO: refs for multiple users not created
-    # TODO: game names have special characters
     return route_logic.refresh_shared_games()
 
 
