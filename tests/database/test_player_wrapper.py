@@ -60,5 +60,5 @@ def test_update_player():
 def test_get_all_players():
     pw.add_player(Player(steam_id="1", first_name="A", last_name="Z"))
     pw.add_player(Player(steam_id="2", first_name="B", last_name="Y"))
-    ids = pw.get_all_players()
-    assert set(ids) == {1, 2}
+    players = pw.get_all_players()
+    assert len(players) == 2

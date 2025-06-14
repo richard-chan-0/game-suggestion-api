@@ -1,5 +1,10 @@
 from src.database.entity_factory import create_player, create_game, create_reference
 from src.database.wrapper import database_wrapper
+from src.steam.steam_api_wrapper import get_owned_games
+from src.lib.exceptions import DataException
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def ready_player(request):
@@ -13,16 +18,22 @@ def ready_player(request):
 
 
 def refresh_shared_games():
-    steam_ids = database_wrapper.player_wrapper.get_all_players()
-    for id in steam_ids:
-        pass
-        # TODO: fix this
-        # database_wrapper.player_wrapper.clean_player_games(id)
-        # games = get_owned_games(id)
-    #     for app_id, game_name in games:
-    #         database_wrapper.game_wrapper.add_game(create_game(app_id, game_name))
-    #         add_player_game_ref(create_reference(id, app_id))
-    # return "table refreshed", 200
+    players = database_wrapper.player_wrapper.get_all_players()
+    for player in players:
+        id = player["steam_id"]
+        games = get_owned_games(id)
+        for app_id, game_name in games:
+            try:
+                game_id = database_wrapper.game_wrapper.add_game(
+                    create_game(app_id, game_name)
+                )
+            except DataException:
+                logger.info("game %s already exists, skipped from refresh", game_name)
+                continue
+            database_wrapper.ref_wrapper.add_ref(
+                create_reference(player.doc_id, game_id)
+            )
+    return "table refreshed", 200
 
 
 def get_shared_games(request):

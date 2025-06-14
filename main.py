@@ -27,15 +27,9 @@ def ready_player():
 
 @app.route("/refresh", methods=["GET"])
 def refresh_shared_games():
-    # steam_ids = get_all_players()
-    # for id in steam_ids:
-    #     clean_player_games(id)
-    #     games = get_owned_games(id)
-    #     for app_id, game_name in games:
-    #         add_game(create_game(app_id, game_name))
-    #         add_player_game_ref(create_reference(id, app_id))
-    # return "table refreshed", 200
-    pass
+    # TODO: refs for multiple users not created
+    # TODO: game names have special characters
+    return route_logic.refresh_shared_games()
 
 
 @app.route("/shared", methods=["POST"])
