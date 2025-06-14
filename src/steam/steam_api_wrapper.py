@@ -1,12 +1,14 @@
 from os import getenv
 from requests import get
 from src.lib.exceptions import SteamApiException
+from src.database.entity_factory import create_game_from_response
 
 
 def process_response(response):
     result = response.json()
     games = result["response"]["games"]
-    return [(game["appid"], game["name"]) for game in games]
+
+    return [create_game_from_response(game) for game in games]
 
 
 def get_owned_games(steam_id):

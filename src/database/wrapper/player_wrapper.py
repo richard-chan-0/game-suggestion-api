@@ -34,7 +34,7 @@ def add_player(player: Player):
 
 
 def get_all_players():
-    return [player.doc_id for player in players.all()]
+    return [player for player in players.all()]
 
 
 def remove_player(steam_id: str):

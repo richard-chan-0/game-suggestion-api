@@ -25,12 +25,12 @@ def get_ref_id(player_game_ref: PlayerGameRef):
         (PlayerGameRefQuery.player_id == player_game_ref.player_id)
         & (PlayerGameRefQuery.game_id == player_game_ref.game_id)
     )
-    return existing_refs[0] if existing_refs else {}
+    return existing_refs[0].doc_id if existing_refs else -1
 
 
 def add_ref(player_game_ref: PlayerGameRef):
     logger.info("inserting reference")
-    if get_ref_id(player_game_ref):
+    if get_ref_id(player_game_ref) != -1:
         raise DataException("reference already exists")
     refs.insert(asdict(player_game_ref))
 
