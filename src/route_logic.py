@@ -1,5 +1,6 @@
 from src.database.entity_factory import create_player
 from src.database.wrapper import database_wrapper
+from src.apis.openai_api_wrapper import get_suggestion
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,3 +28,16 @@ def get_shared_games(request):
         return games, 200
     else:
         return "no shared games", 200
+
+
+def suggest_games(request):
+    steam_ids = request.form.getlist("steam_ids")
+    games = database_wrapper.get_shared_games(steam_ids)
+    if not games:
+        return "no shared games", 200
+
+    game = get_suggestion(games, len(steam_ids))
+    if game:
+        return game, 200
+    else:
+        return "no suggestion", 200
