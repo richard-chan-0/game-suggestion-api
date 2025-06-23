@@ -35,4 +35,9 @@ def get_shared_games():
     return route_logic.get_shared_games(request)
 
 
+@app.route("suggest", methods=["POST"])
+def suggest_games():
+    return route_logic.suggest_games(request)
+
+
 app.run(debug=True)
