@@ -2,7 +2,7 @@ from src.database.wrapper import player_wrapper, game_wrapper, ref_wrapper
 from src.lib.exceptions import DataException
 from src.database.entity_factory import create_game, create_reference
 from src.database.entities import Game
-from src.steam.steam_api_wrapper import get_owned_games
+from src.apis.steam_api_wrapper import get_owned_games
 import logging
 
 logger = logging.getLogger(__name__)
