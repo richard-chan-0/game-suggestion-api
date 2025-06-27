@@ -16,6 +16,17 @@ def ready_player(request):
     return "player successfully added", 200
 
 
+def search_player(request):
+    first_name = request.args.get("first_name")
+    last_name = request.args.get("last_name")
+    if not first_name or not last_name:
+        return "first name and last name are required", 400
+    player = database_wrapper.player_wrapper.read_player_by_name(
+        first_name.lower(), last_name.lower()
+    )
+    return player if player else "player not found", 200
+
+
 def refresh_shared_games():
     database_wrapper.refresh_shared_games()
     return "table refreshed", 200
