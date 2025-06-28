@@ -1,11 +1,13 @@
-from flask import Flask, request
+from flask import Flask
 from dotenv import load_dotenv
-from src import route_logic
+from src.route import blueprints
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
+app.register_blueprint(blueprints.player_blueprint)
+app.register_blueprint(blueprints.commands_blueprint)
 
 load_dotenv()
 
@@ -20,24 +22,5 @@ def home():
     return "api is running", 200
 
 
-@app.route("/add-player", methods=["POST"])
-def ready_player():
-    return route_logic.ready_player(request)
-
-
-@app.route("/refresh", methods=["GET"])
-def refresh_shared_games():
-    return route_logic.refresh_shared_games()
-
-
-@app.route("/shared", methods=["POST"])
-def get_shared_games():
-    return route_logic.get_shared_games(request)
-
-
-@app.route("suggest", methods=["POST"])
-def suggest_games():
-    return route_logic.suggest_games(request)
-
-
-app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)

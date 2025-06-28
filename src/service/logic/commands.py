@@ -1,19 +1,9 @@
-from src.database.entity_factory import create_player
+"""
+grpc, command specific api logic
+"""
+
 from src.database.wrapper import database_wrapper
-from src.apis.openai_api_wrapper import get_suggestion
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-def ready_player(request):
-    steam_id = request.form.get("steam_id")
-    first_name = request.form.get("first_name").lower()
-    last_name = request.form.get("last_name").lower()
-
-    player = create_player(steam_id, first_name, last_name)
-    database_wrapper.player_wrapper.add_player(player)
-    return "player successfully added", 200
+from src.service.apis.openai_api_wrapper import get_suggestion
 
 
 def refresh_shared_games():
