@@ -1,5 +1,8 @@
 from openai import OpenAI
 from os import getenv
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 client = OpenAI(api_key=getenv("OPENAI_KEY"))
 
@@ -26,4 +29,6 @@ def create_ai_prompt(list_games: list[str], number_of_players: int):
 
 def get_suggestion(list_games: list[str], number_of_players: int):
     ai_prompt = create_ai_prompt(list_games, number_of_players)
-    return ask_ai(ai_prompt)
+    response = ask_ai(ai_prompt)
+    logger.info(response)
+    return response.output_text if response else None
