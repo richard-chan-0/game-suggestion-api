@@ -3,7 +3,7 @@ grpc, command specific api logic
 """
 
 from src.database.wrapper import database_wrapper
-from src.apis.openai_api_wrapper import get_suggestion
+from src.service.apis.openai_api_wrapper import get_suggestion
 
 
 def refresh_shared_games():

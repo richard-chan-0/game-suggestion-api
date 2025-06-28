@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from src.route.logic.commands import (
+from src.service.logic.commands import (
     refresh_shared_games,
     get_shared_games,
     suggest_games,

@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from src.route.logic.player import *
+from src.service.logic.player import *
 
 player_blueprint = Blueprint("player", __name__, url_prefix="/player")
 
