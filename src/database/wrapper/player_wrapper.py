@@ -26,6 +26,12 @@ def read_player_by_name(first_name: str, last_name: str):
     return {} if not players_found else players_found[0]
 
 
+def get_player_by_id(id: int):
+    logger.info("finding player by id")
+    players_found = players.get(doc_id=id)
+    return {} if not players_found else players_found
+
+
 def get_player_id(steam_id):
     logger.info("finding player id")
     existing_player = read_player(steam_id)

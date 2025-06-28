@@ -1,6 +1,7 @@
 from openai import OpenAI
+from os import getenv
 
-client = OpenAI()
+client = OpenAI(api_key=getenv("OPENAI_KEY"))
 
 
 def ask_ai(ai_prompt):

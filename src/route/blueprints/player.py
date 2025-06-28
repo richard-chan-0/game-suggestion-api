@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from src.route.logic.player import *
 
-player_blueprint = Blueprint("player", __name__)
+player_blueprint = Blueprint("player", __name__, url_prefix="/player")
 
 
 @player_blueprint.route("/", methods=["GET", "POST"])
@@ -16,4 +16,4 @@ def index():
 
 @player_blueprint.route("/<int:id>", methods=["GET"])
 def get_player(id):
-    return "get player", 200
+    return search_player_by_id(id)
