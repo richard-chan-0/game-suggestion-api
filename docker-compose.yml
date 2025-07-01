@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    environment:
+      - STEAM_API_KEY=7383EA0735038F233F00ED652A6F9624
+      - OPENAI_KEY=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
+      - FLASK_APP=main.py
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+    ports:
+      - 5010:5000
+    command: "flask run --host=0.0.0.0"

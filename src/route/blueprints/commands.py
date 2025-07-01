@@ -9,7 +9,7 @@ commands_blueprint = Blueprint("commands", __name__)
 
 
 @commands_blueprint.route("/refresh", methods=["GET"])
-def refresh_shared_games():
+def get_refresh_shared_games():
     return refresh_shared_games()
 
 
