@@ -19,7 +19,7 @@ def read_player(steam_id: str):
 
 
 def read_player_by_name(first_name: str, last_name: str):
-    logger.info("finding player by name")
+    logger.info("finding player by name: %s %s", first_name, last_name)
     players_found = players.search(
         (PlayerQuery.first_name == first_name) & (PlayerQuery.last_name == last_name)
     )
@@ -27,13 +27,13 @@ def read_player_by_name(first_name: str, last_name: str):
 
 
 def get_player_by_id(id: int):
-    logger.info("finding player by id")
+    logger.info("finding player by id %s", id)
     players_found = players.get(doc_id=id)
     return {} if not players_found else players_found
 
 
 def get_player_id(steam_id):
-    logger.info("finding player id")
+    logger.info("finding player id %s", steam_id)
     existing_player = read_player(steam_id)
     return existing_player.doc_id if existing_player else -1
 

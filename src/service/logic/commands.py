@@ -2,8 +2,11 @@
 grpc, command specific api logic
 """
 
+from logging import getLogger
 from src.database.wrapper import database_wrapper
 from src.service.apis.openai_api_wrapper import get_suggestion
+
+logger = getLogger(__name__)
 
 
 def refresh_shared_games():
@@ -25,6 +28,8 @@ def suggest_games(request):
     games = database_wrapper.get_shared_games(steam_ids)
     if not games:
         return "no shared games", 200
+
+    logger.info("games shared by players: %s", games)
 
     game = get_suggestion(games, len(steam_ids))
     if game:

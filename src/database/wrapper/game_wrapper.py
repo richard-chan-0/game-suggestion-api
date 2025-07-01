@@ -24,7 +24,6 @@ def get_game_id(name: str):
 
 
 def get_game(game_id: int):
-    logger.info("searching for game")
     game = games.get(doc_id=game_id)
     if not game:
         raise DataException("no game found")
