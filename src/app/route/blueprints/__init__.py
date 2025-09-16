@@ -1,2 +1,2 @@
-from src.route.blueprints.player import *
-from src.route.blueprints.commands import *
+from src.app.route.blueprints.player import *
+from src.app.route.blueprints.commands import *

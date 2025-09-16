@@ -1,7 +1,7 @@
 from os import getenv
 from requests import get
-from src.lib.exceptions import SteamApiException
-from src.database.entity_factory import create_game_from_response
+from src.app.lib.exceptions import SteamApiException
+from src.app.database.entity_factory import create_game_from_response
 
 
 def process_response(response):

@@ -1,6 +1,6 @@
-from src.database.entity_factory import create_player
-from src.database.wrapper import database_wrapper
-from src.service.apis.openai_api_wrapper import get_suggestion
+from src.app.database.entity_factory import create_player
+from src.app.database.wrapper import database_wrapper
+from src.app.service.apis.openai_api_wrapper import get_suggestion
 import logging
 
 logger = logging.getLogger(__name__)

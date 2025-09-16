@@ -1,7 +1,7 @@
 from tinydb import TinyDB, Query
 from dataclasses import asdict
-from src.database.entities import *
-from src.lib.exceptions import DataException
+from src.app.database.entities import *
+from src.app.lib.exceptions import DataException
 import logging
 
 logger = logging.getLogger(__name__)
