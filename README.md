@@ -165,6 +165,8 @@ pytest
 - The database uses TinyDB and stores data in `db.json` by default.
 - For development/testing, the database is mocked using pytest fixtures.
 - Logging is enabled for debugging.
+- Teardown of CloudFormation for cleanup `a
+ws cloudformation delete-stack --stack-name game-suggestion-api --region us-east-1`
 
 ---
 

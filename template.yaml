@@ -15,7 +15,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: game-suggestion-api
-      Handler: src/lambda_handler.lambda_handler
+      Handler: src/lambda_handler.handler
       CodeUri: .
       Runtime: python3.12
       Description: Game Suggestion API Lambda Function

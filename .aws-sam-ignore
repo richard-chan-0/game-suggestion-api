@@ -1,0 +1,12 @@
+Dockerfile
+docker-compose.yml
+tests/
+.vscode/
+.copilot
+.venv
+*.md
+*.txt
+*.log
+*.env
+*.pyc
+__pycache__/
