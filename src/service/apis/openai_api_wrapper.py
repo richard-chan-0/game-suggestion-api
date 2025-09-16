@@ -22,7 +22,7 @@ def ask_ai(ai_prompt):
 
 
 def create_ai_prompt(list_games: list[str], number_of_players: int):
-    return f"given this list of games {list_games}, \
+    return f"given this list of games, {list_games}, \
         can you suggest a game that is multiplayer \
         and able to play with {number_of_players} players"
 

@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 anyio==4.9.0
+aws-lambda-wsgi==0.0.6
 black==25.1.0
 blinker==1.9.0
 certifi==2025.4.26

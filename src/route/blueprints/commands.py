@@ -14,7 +14,7 @@ def get_refresh_shared_games():
 
 
 @commands_blueprint.route("/shared", methods=["POST"])
-def get_shared_games():
+def get_shared_games_for_players():
     return get_shared_games(request)
 
 
