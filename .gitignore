@@ -6,3 +6,5 @@ db.json
 .pytest_cache
 .vscode
 .copilot
+.aws-sam
+scratch.txt

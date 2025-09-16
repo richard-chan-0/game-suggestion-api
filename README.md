@@ -12,7 +12,7 @@ A Flask-based API for suggesting multiplayer games based on Steam libraries, wit
 - Get AI-powered game suggestions for a group
 - Modular database layer using TinyDB
 
-## Setup
+## Setup (Local Development)
 
 ### 1. Clone the repository
 
@@ -47,13 +47,78 @@ OPENAI_KEY=your_openai_api_key
 STEAM_API_KEY=your_steam_api_key
 ```
 
-### 4. Run the API
+### 4. Run the API Locally
 
 ```sh
 python main.py
 ```
 
 The API will be available at `http://localhost:5000/`.
+
+---
+
+## Deploying to AWS Lambda with SAM
+
+This project is configured for deployment to AWS Lambda using the AWS Serverless Application Model (SAM).
+
+### Prerequisites
+
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with your credentials
+- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+- Docker (optional, but recommended for local builds)
+
+### Project Structure
+
+```
+game-suggestion-api/
+├── src/
+├── lambda_handler.py
+├── main.py
+├── requirements.txt
+├── template.yaml
+└── ...
+```
+
+### Deployment Steps
+
+1. **Build the application:**
+
+   ```sh
+   sam build
+   ```
+
+   This command will:
+
+   - Install all dependencies from `requirements.txt` in a Lambda-compatible environment
+   - Package your source code and dependencies for deployment
+
+2. **Deploy the application:**
+
+   ```sh
+   sam deploy --guided
+   ```
+
+   - The `--guided` flag will prompt you for stack name, AWS region, and other deployment options.
+   - After deployment, SAM will output the API Gateway endpoint URL.
+
+3. **Set Environment Variables in Lambda:**
+
+   - After deployment, go to the AWS Lambda Console.
+   - Navigate to your function and add `OPENAI_KEY` and `STEAM_API_KEY` as environment variables.
+
+   Alternatively, you can add these to the `Environment` section in `template.yaml` (not recommended for secrets in source control).
+
+### API Gateway
+
+- The deployed Lambda is fronted by an API Gateway.
+- All HTTP methods and paths are proxied to your Flask app.
+
+### Updating the Application
+
+- Make code or dependency changes.
+- Run `sam build` and `sam deploy` again.
+
+---
 
 ## API Endpoints
 
@@ -82,34 +147,7 @@ The API will be available at `http://localhost:5000/`.
   Get an AI-powered game suggestion for a group.  
   **Form data:** `steam_ids` (list)
 
-## Project Structure
-
-```
-src/
-  database/
-    entities.py
-    entity_factory.py
-    wrapper/
-      player_wrapper.py
-      game_wrapper.py
-      ref_wrapper.py
-      database_wrapper.py
-  lib/
-    exceptions.py
-    string_utils.py
-  route/
-    blueprints/
-      player.py
-      commands.py
-  service/
-    apis/
-      steam_api_wrapper.py
-      openai_api_wrapper.py
-    logic/
-      player.py
-      commands.py
-main.py
-```
+---
 
 ## Testing
 
@@ -120,11 +158,17 @@ To run tests:
 pytest
 ```
 
+---
+
 ## Notes
 
 - The database uses TinyDB and stores data in `db.json` by default.
 - For development/testing, the database is mocked using pytest fixtures.
 - Logging is enabled for debugging.
+- Teardown of CloudFormation for cleanup `a
+ws cloudformation delete-stack --stack-name game-suggestion-api --region us-east-1`
+
+---
 
 ## License
 

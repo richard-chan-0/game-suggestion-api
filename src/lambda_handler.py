@@ -1,5 +1,5 @@
 from aws_lambda_wsgi import response
-from main import app
+from src.app import app
 
 
 def lambda_handler(event, context):

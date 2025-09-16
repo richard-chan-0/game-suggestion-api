@@ -3,8 +3,8 @@ grpc, command specific api logic
 """
 
 from logging import getLogger
-from src.database.wrapper import database_wrapper
-from src.service.apis.openai_api_wrapper import get_suggestion
+from src.app.database.wrapper import database_wrapper
+from src.app.service.apis.openai_api_wrapper import get_suggestion
 
 logger = getLogger(__name__)
 
