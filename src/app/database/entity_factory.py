@@ -1,5 +1,5 @@
-from src.database.entities import *
-from src.lib.string_utils import clean_name
+from src.app.database.entities import *
+from src.app.lib.string_utils import clean_name
 
 
 def create_player(steam_id, first_name, last_name):
