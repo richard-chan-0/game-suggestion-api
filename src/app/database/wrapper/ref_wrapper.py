@@ -2,14 +2,17 @@ from tinydb import TinyDB, Query
 from dataclasses import asdict
 from src.app.database.entities import *
 from src.app.lib.exceptions import DataException
+from src.app.database.constants import PLAYER_GAME_REF_TABLE
+from src.app.database.entity_factory import (
+    create_database_query,
+    create_database_reader,
+)
 import logging
 
 logger = logging.getLogger(__name__)
 
-db = TinyDB("db.json")
-refs = db.table("player_game_ref")
-
-PlayerGameRefQuery = Query()
+refs = create_database_reader(PLAYER_GAME_REF_TABLE)
+PlayerGameRefQuery = create_database_query()
 
 
 def get_refs_for_players(player_ids: list[int]):

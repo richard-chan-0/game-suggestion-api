@@ -1,0 +1,5 @@
+DEV_DATABASE_PATH = "db.json"
+PLAYER_TABLE_NAME = "players"
+GAME_TABLE_NAME = "games"
+PLAYER_GAME_REF_TABLE_NAME = "player_game_ref"
+PROD_DATABASE_PATH = "/tmp/db.json"

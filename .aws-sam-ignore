@@ -9,4 +9,5 @@ tests/
 *.log
 *.env
 *.pyc
+db.json
 __pycache__/
