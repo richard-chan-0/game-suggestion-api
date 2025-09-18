@@ -2,7 +2,7 @@ from tinydb import TinyDB, Query
 from dataclasses import asdict
 from src.app.database.entities import *
 from src.app.lib.exceptions import DataException
-from src.app.database.constants import PLAYER_GAME_REF_TABLE
+from src.app.database.constants import PLAYER_GAME_REF_TABLE_NAME
 from src.app.database.entity_factory import (
     create_database_query,
     create_database_reader,
@@ -11,7 +11,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-refs = create_database_reader(PLAYER_GAME_REF_TABLE)
+refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
 PlayerGameRefQuery = create_database_query()
 
 
