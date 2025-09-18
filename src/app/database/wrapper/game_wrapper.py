@@ -2,14 +2,18 @@ from tinydb import TinyDB, Query
 from dataclasses import asdict
 from src.app.database.entities import *
 from src.app.lib.exceptions import DataException
+from src.app.database.entity_factory import (
+    create_database_reader,
+    create_database_query,
+)
+from src.app.database.constants import GAME_TABLE_NAME
 import logging
 
 logger = logging.getLogger(__name__)
 
-db = TinyDB("db.json")
-games = db.table("games")
 
-GameQuery = Query()
+games = create_database_reader(GAME_TABLE_NAME)
+GameQuery = create_database_query()
 
 
 def read_game(name: str):

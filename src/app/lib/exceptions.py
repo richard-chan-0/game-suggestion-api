@@ -4,3 +4,7 @@ class SteamApiException(Exception):
 
 class DataException(Exception):
     pass
+
+
+class AwsException(Exception):
+    pass

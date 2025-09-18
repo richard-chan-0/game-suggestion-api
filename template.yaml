@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Description: >
@@ -15,8 +15,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: game-suggestion-api
-      Handler: src/lambda_handler.handler
-      CodeUri: .
+      Handler: lambda_handler.lambda_handler
+      CodeUri: src/
       Runtime: python3.12
       Description: Game Suggestion API Lambda Function
       Events:
@@ -25,11 +25,37 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
+            RestApiId: !Ref GameSuggestionApi
       Environment:
         Variables:
           FLASK_ENV: production
+          TINYDB_BUCKET: !Ref TinyDBBucket
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref TinyDBBucket
+
+  GameSuggestionApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: GameSuggestionApi
+      StageName: Prod
+      Cors:
+        AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  TinyDBBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-tinydb-${AWS::AccountId}"
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
 
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${GameSuggestionApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

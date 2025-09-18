@@ -1,5 +1,8 @@
+from os import getenv
 from src.app.database.entities import *
 from src.app.lib.string_utils import clean_name
+from tinydb import TinyDB, Query
+from src.app.database.constants import DEV_DATABASE_PATH, PROD_DATABASE_PATH
 
 
 def create_player(steam_id, first_name, last_name):
@@ -18,3 +21,17 @@ def create_game_from_response(response):
 
 def create_reference(steam_id, app_id):
     return PlayerGameRef(steam_id, app_id)
+
+
+def create_database_reader(table_name: str):
+    """
+    Create a TinyDB reader for the specified table.
+    Uses different database files based on the FLASK_ENV environment variable.
+    """
+    is_production = getenv("FLASK_ENV") == "production"
+    db = TinyDB(PROD_DATABASE_PATH if is_production else DEV_DATABASE_PATH)
+    return db.table(table_name)
+
+
+def create_database_query():
+    return Query()
