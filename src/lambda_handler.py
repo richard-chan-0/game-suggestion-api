@@ -1,6 +1,5 @@
 from os import getenv
 from boto3 import client
-from awsgi import response
 from src import app
 from botocore.exceptions import ClientError
 from src.app.lib.exceptions import AwsException

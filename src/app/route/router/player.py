@@ -4,12 +4,12 @@ from src.app.service.logic.player import *
 player_router = APIRouter()
 
 
-@player_router.get("/")
+@player_router.get("")
 async def index(first_name: str, last_name: str):
     return await search_player(first_name, last_name)
 
 
-@player_router.post("/")
+@player_router.post("")
 async def ready_player(request: Request):
     return await ready_player(request)
 
