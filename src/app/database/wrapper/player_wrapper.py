@@ -1,4 +1,3 @@
-from tinydb import TinyDB, Query
 from dataclasses import asdict
 from src.app.database.entities import *
 from src.app.lib.exceptions import DataException
@@ -11,28 +10,40 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-players = create_database_reader(PLAYER_TABLE_NAME)
-PlayerQuery = create_database_query()
-
 
 def read_player(steam_id: str):
     logger.info("finding player")
-    players_found = players.search(PlayerQuery.steam_id == steam_id)
-    return {} if not players_found else players_found[0]
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    player_query = create_database_query()
+    try:
+        players_found = players.search(player_query.steam_id == steam_id)
+        return {} if not players_found else players_found[0]
+    finally:
+        db.close()
 
 
 def read_player_by_name(first_name: str, last_name: str):
     logger.info("finding player by name: %s %s", first_name, last_name)
-    players_found = players.search(
-        (PlayerQuery.first_name == first_name) & (PlayerQuery.last_name == last_name)
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    player_query = create_database_query()
+    query = (player_query.first_name == first_name) & (
+        player_query.last_name == last_name
     )
-    return {} if not players_found else players_found[0]
+    try:
+        players_found = players.search(query)
+        return {} if not players_found else players_found[0]
+    finally:
+        db.close()
 
 
 def get_player_by_id(id: int):
     logger.info("finding player by id %s", id)
-    players_found = players.get(doc_id=id)
-    return {} if not players_found else players_found
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    try:
+        players_found = players.get(doc_id=id)
+        return {} if not players_found else players_found
+    finally:
+        db.close()
 
 
 def get_player_id(steam_id):
@@ -47,19 +58,36 @@ def add_player(player: Player):
     if existing_player:
         raise DataException("player already onboarded")
 
-    return players.insert(asdict(player))
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    try:
+        return players.insert(asdict(player))
+    finally:
+        db.close()
 
 
 def get_all_players():
-    return [player for player in players.all()]
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    try:
+        return [player for player in players.all()]
+    finally:
+        db.close()
 
 
 def remove_player(steam_id: str):
-    players.remove(PlayerQuery.steam_id == steam_id)
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    player_query = create_database_query()
+    try:
+        players.remove(player_query.steam_id == steam_id)
+    finally:
+        db.close()
 
 
 def update_player(steam_id: str, updates: dict):
     id = get_player_id(steam_id)
     if id == -1:
         raise DataException("no player found")
-    players.update(updates, doc_ids=[id])
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    try:
+        players.update(updates, doc_ids=[id])
+    finally:
+        db.close()
