@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-games = create_database_reader(GAME_TABLE_NAME)
+_, games = create_database_reader(GAME_TABLE_NAME)
 GameQuery = create_database_query()
 
 

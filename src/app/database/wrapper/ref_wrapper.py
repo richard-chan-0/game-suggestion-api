@@ -11,7 +11,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+_, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
 PlayerGameRefQuery = create_database_query()
 
 
