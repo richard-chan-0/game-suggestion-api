@@ -1,16 +1,15 @@
-from flask import Flask
-from src.app.route import blueprints
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from src.app.route import router
 
-app = Flask("game_suggestion_api")
-app.register_blueprint(blueprints.player_blueprint)
-app.register_blueprint(blueprints.commands_blueprint)
-
-
-@app.errorhandler(Exception)
-def general_exception_handler(e):
-    return str(e), 500
+app = FastAPI()
+app.include_router(router.player_router, prefix="/player")
+app.include_router(router.commands_router, prefix="/commands")
 
 
-@app.route("/")
-def home():
-    return "api is running", 200
+@app.exception_handler(Exception)
+def general_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"message": str(exc)},
+    )

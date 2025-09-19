@@ -28,8 +28,8 @@ def create_ai_prompt(list_games: list[str], number_of_players: int):
         and able to play with {number_of_players} players"
 
 
-def get_suggestion(list_games: list[str], number_of_players: int):
+async def get_suggestion(list_games: list[str], number_of_players: int):
     ai_prompt = create_ai_prompt(list_games, number_of_players)
-    response = ask_ai(ai_prompt)
+    response = await ask_ai(ai_prompt)
     logger.info(response)
     return response.output_text if response else None

@@ -1,15 +1,17 @@
 from os import getenv
 from boto3 import client
-from awsgi import response
 from src import app
 from botocore.exceptions import ClientError
 from src.app.lib.exceptions import AwsException
 from logging import getLogger
+from mangum import Mangum
 
 logger = getLogger(__name__)
 logger.setLevel("INFO")
 
 TINYDB_BUCKET = getenv("TINYDB_BUCKET")
+
+handler = Mangum(app)
 
 
 def create_s3_client():
@@ -42,7 +44,7 @@ def lambda_handler(event, context):
     download_db_from_s3(s3_client)
 
     logger.info("Processing event: %s", event)
-    event_response = response(app, event, context)
+    event_response = handler(event, context)
 
     upload_db_to_s3(s3_client)
 
