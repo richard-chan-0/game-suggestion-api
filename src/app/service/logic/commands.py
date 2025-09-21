@@ -8,7 +8,7 @@ from src.app.database.entity_factory import create_game, create_reference
 from src.app.service.apis.openai_api_wrapper import get_suggestion
 from src.app.lib.api_utils import create_message_response
 from src.app.database.wrapper import player_wrapper, ref_wrapper, game_wrapper
-from src.app.lib.exceptions import DataException
+from src.app.lib.exceptions import DatabaseException
 from src.app.service.apis.steam_api_wrapper import get_owned_games
 
 logger = getLogger(__name__)
@@ -36,7 +36,7 @@ def get_shared_games(steam_ids: list[str]):
     player_ids = [player_wrapper.get_player_id(steam_id) for steam_id in steam_ids]
     player_game_refs = ref_wrapper.get_refs_for_players(player_ids)
     if not player_game_refs:
-        raise DataException("no data found")
+        raise DatabaseException("no data found")
 
     shared_ids = process_refs_and_get_shared_games(player_game_refs, steam_ids)
     shared_games = [game_wrapper.get_game(game_id) for game_id in shared_ids]

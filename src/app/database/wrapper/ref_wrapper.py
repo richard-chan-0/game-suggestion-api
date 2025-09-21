@@ -1,6 +1,6 @@
 from dataclasses import asdict
 from src.app.database.entities import *
-from src.app.lib.exceptions import DataException
+from src.app.lib.exceptions import DatabaseException
 from src.app.database.constants import PLAYER_GAME_REF_TABLE_NAME
 from src.app.database.entity_factory import (
     create_database_query,
@@ -45,7 +45,7 @@ def get_ref_id(player_game_ref: PlayerGameRef):
 def add_ref(player_game_ref: PlayerGameRef):
     logger.info("inserting reference")
     if get_ref_id(player_game_ref) != -1:
-        raise DataException("reference already exists")
+        raise DatabaseException("reference already exists")
     db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
     try:
         refs.insert(asdict(player_game_ref))

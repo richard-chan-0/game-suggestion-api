@@ -34,7 +34,6 @@ def create_database_reader(table_name: str) -> tuple[TinyDB, TinyDB.table]:
     is_production = getenv("FLASK_ENV") == "production"
     db_path = PROD_DATABASE_PATH if is_production else DEV_DATABASE_PATH
     db = TinyDB(db_path)
-    logger.info("Using database %s", db_path)
     table = db.table(table_name)
     return db, table
 
