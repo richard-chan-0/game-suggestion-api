@@ -1,25 +1,24 @@
-from fastapi import Request
 from src.app.database.entity_factory import create_player
-from src.app.database.wrapper import database_wrapper
-from src.app.service.apis.openai_api_wrapper import get_suggestion
+from src.app.database.wrapper import player_wrapper
+from src.app.lib.api_utils import create_message_response
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-async def ready_player(steam_id: str, first_name: str, last_name: str):
+def ready_player(steam_id: str, first_name: str, last_name: str):
     player = create_player(steam_id, first_name, last_name)
-    database_wrapper.player_wrapper.add_player(player)
-    return "player successfully added", 200
+    player_wrapper.add_player(player)
+    return create_message_response("player successfully added")
 
 
-async def search_player(first_name: str, last_name: str):
+def search_player(first_name: str, last_name: str):
     if not first_name or not last_name:
-        return "first name and last name are required", 400
-    player = database_wrapper.player_wrapper.read_player_by_name(first_name, last_name)
-    return player if player else "player not found", 200
+        return create_message_response("first name and last name are required")
+    player = player_wrapper.read_player_by_name(first_name, last_name)
+    return player if player else create_message_response("player not found")
 
 
-async def search_player_by_id(id):
-    player = database_wrapper.player_wrapper.get_player_by_id(id)
-    return player if player else "player not found", 200
+def search_player_by_id(id):
+    player = player_wrapper.get_player_by_id(id)
+    return player if player else create_message_response("player not found")

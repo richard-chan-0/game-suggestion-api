@@ -1,4 +1,3 @@
-from tinydb import TinyDB, Query
 from dataclasses import asdict
 from src.app.database.entities import *
 from src.app.lib.exceptions import DataException
@@ -12,14 +11,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-_, games = create_database_reader(GAME_TABLE_NAME)
-GameQuery = create_database_query()
-
-
 def read_game(name: str):
     logger.info("searching for game with name: %s", name)
-    existing_game = games.search(GameQuery.name == name)
-    return existing_game[0] if existing_game else {}
+    db, games = create_database_reader(GAME_TABLE_NAME)
+    game_query = create_database_query()
+    try:
+        existing_game = games.search(game_query.name == name)
+        return existing_game[0] if existing_game else {}
+    finally:
+        db.close()
 
 
 def get_game_id(name: str):
@@ -28,10 +28,15 @@ def get_game_id(name: str):
 
 
 def get_game(game_id: int):
-    game = games.get(doc_id=game_id)
-    if not game:
-        raise DataException("no game found")
-    return game
+    logger.info("finding game by id %s", game_id)
+    db, games = create_database_reader(GAME_TABLE_NAME)
+    try:
+        game = games.get(doc_id=game_id)
+        if not game:
+            raise DataException("no game found")
+        return game
+    finally:
+        db.close()
 
 
 def add_game(game: Game):
@@ -39,16 +44,29 @@ def add_game(game: Game):
     existing_game = read_game(game.name)
     if existing_game:
         raise DataException(f"game already exists: {existing_game['name']}")
-    return games.insert(asdict(game))
+    db, games = create_database_reader(GAME_TABLE_NAME)
+    try:
+        return games.insert(asdict(game))
+    finally:
+        db.close()
 
 
 def remove_game(name: str):
     logger.info("removing game %s", name)
-    games.remove(GameQuery.name == name)
+    db, games = create_database_reader(GAME_TABLE_NAME)
+    games_query = create_database_query()
+    try:
+        games.remove(games_query.name == name)
+    finally:
+        db.close()
 
 
 def update_game(name: str, updates: dict):
     game_id = get_game_id(name)
     if game_id == -1:
         raise DataException("game does not exist")
-    games.update(updates, doc_ids=[game_id])
+    db, games = create_database_reader(GAME_TABLE_NAME)
+    try:
+        games.update(updates, doc_ids=[game_id])
+    finally:
+        db.close()

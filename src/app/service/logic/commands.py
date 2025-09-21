@@ -1,36 +1,100 @@
 """
-grpc, command specific api logic
+grpc style command specific api logic
 """
 
 from logging import getLogger
-from src.app.database.wrapper import database_wrapper
+from src.app.database.entities import Game
+from src.app.database.entity_factory import create_game, create_reference
 from src.app.service.apis.openai_api_wrapper import get_suggestion
+from src.app.lib.api_utils import create_message_response
+from src.app.database.wrapper import player_wrapper, ref_wrapper, game_wrapper
+from src.app.lib.exceptions import DataException
+from src.app.service.apis.steam_api_wrapper import get_owned_games
 
 logger = getLogger(__name__)
 
 
-async def refresh_shared_games():
-    database_wrapper.refresh_shared_games()
-    return "table refreshed", 200
+def process_refs_and_get_shared_games(player_game_refs, steam_ids):
+    all_games = {}
+    for ref in player_game_refs:
+        game_id = ref["game_id"]
+        player_id = ref["player_id"]
+        if game_id not in all_games:
+            all_games[game_id] = [player_id]
+        else:
+            all_games[game_id].append(player_id)
+
+    return [
+        game_id
+        for game_id, player_id in all_games.items()
+        if len(steam_ids) == len(player_id)
+    ]
 
 
-async def get_shared_games(steam_ids: list[str]):
-    games = await database_wrapper.get_shared_games(steam_ids)
+def get_shared_games(steam_ids: list[str]):
+    logger.info("getting shared games for players")
+    player_ids = [player_wrapper.get_player_id(steam_id) for steam_id in steam_ids]
+    player_game_refs = ref_wrapper.get_refs_for_players(player_ids)
+    if not player_game_refs:
+        raise DataException("no data found")
+
+    shared_ids = process_refs_and_get_shared_games(player_game_refs, steam_ids)
+    shared_games = [game_wrapper.get_game(game_id) for game_id in shared_ids]
+    return [game["name"] for game in shared_games]
+
+
+def get_game_id(app_id: str, game_name: str):
+    """
+    Get the game ID from the database, or add it if it does not exist.
+    """
+    game_id = game_wrapper.get_game_id(game_name)
+
+    return (
+        game_wrapper.add_game(create_game(app_id, game_name))
+        if game_id == -1
+        else game_id
+    )
+
+
+def refresh_player_games(player, games: list[Game]):
+    logger.info(
+        "refreshing games for player %s",
+        f"{player['first_name']} {player['last_name']}",
+    )
+    for game in games:
+        game_id = get_game_id(game.app_id, game.name)
+        ref_id = ref_wrapper.get_ref_id(create_reference(player.doc_id, game_id))
+        if ref_id == -1:
+            ref_wrapper.add_ref(create_reference(player.doc_id, game_id))
+
+
+def refresh_shared_games():
+    logger.info("refreshing owned games for all players")
+    players = player_wrapper.get_all_players()
+    for player in players:
+        id = player["steam_id"]
+        games = get_owned_games(id)
+        refresh_player_games(player, games)
+    return create_message_response("table refreshed")
+
+
+def get_shared_games_for_steam_ids(steam_ids: list[str]):
+    games = get_shared_games(steam_ids)
     if games:
-        return games, 200
+        return {"games": games}
     else:
-        return "no shared games", 200
+        return create_message_response("no shared games")
 
 
 async def suggest_games(steam_ids: list[str]):
-    games = await database_wrapper.get_shared_games(steam_ids)
+    games = get_shared_games(steam_ids)
     if not games:
-        return "no shared games", 200
+        return create_message_response("no shared games")
 
     logger.info("games shared by players: %s", games)
 
-    game = await get_suggestion(games, len(steam_ids))
+    game = get_suggestion(games, len(steam_ids))
     if game:
-        return game, 200
+        return {"game": game}
     else:
-        return "no suggestion", 200
+        return create_message_response("no suggestion")
