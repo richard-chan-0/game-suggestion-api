@@ -67,8 +67,9 @@ def add_player(player: Player):
 
 def get_all_players():
     db, players = create_database_reader(PLAYER_TABLE_NAME)
+    all_players = players.all()
     try:
-        return [player for player in players.all()]
+        return [player for player in all_players]
     finally:
         db.close()
 

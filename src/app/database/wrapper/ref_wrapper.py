@@ -1,4 +1,3 @@
-from tinydb import TinyDB, Query
 from dataclasses import asdict
 from src.app.database.entities import *
 from src.app.lib.exceptions import DataException
@@ -11,36 +10,62 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-_, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
-PlayerGameRefQuery = create_database_query()
-
 
 def get_refs_for_players(player_ids: list[int]):
-    return refs.search(PlayerGameRefQuery.player_id.one_of(player_ids))
+    db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+    player_game_ref_query = create_database_query()
+    try:
+        return refs.search(player_game_ref_query.player_id.one_of(player_ids))
+    finally:
+        db.close()
 
 
 def get_refs_for_player(player_id: int):
-    return refs.search(PlayerGameRef.player_id == player_id)
+    db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+    player_game_ref_query = create_database_query()
+    try:
+        return refs.search(player_game_ref_query.player_id == player_id)
+    finally:
+        db.close()
 
 
 def get_ref_id(player_game_ref: PlayerGameRef):
-    existing_refs = refs.search(
-        (PlayerGameRefQuery.player_id == player_game_ref.player_id)
-        & (PlayerGameRefQuery.game_id == player_game_ref.game_id)
-    )
-    return existing_refs[0].doc_id if existing_refs else -1
+    db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+    player_game_ref_query = create_database_query()
+    try:
+        existing_refs = refs.search(
+            (player_game_ref_query.player_id == player_game_ref.player_id)
+            & (player_game_ref_query.game_id == player_game_ref.game_id)
+        )
+        return existing_refs[0].doc_id if existing_refs else -1
+    finally:
+        db.close()
 
 
 def add_ref(player_game_ref: PlayerGameRef):
     logger.info("inserting reference")
     if get_ref_id(player_game_ref) != -1:
         raise DataException("reference already exists")
-    refs.insert(asdict(player_game_ref))
+    db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+    try:
+        refs.insert(asdict(player_game_ref))
+    finally:
+        db.close()
 
 
 def remove_player_refs(player_id: int):
-    refs.remove(PlayerGameRefQuery.player_id == player_id)
+    db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+    player_game_ref_query = create_database_query()
+    try:
+        refs.remove(player_game_ref_query.player_id == player_id)
+    finally:
+        db.close()
 
 
 def remove_game_refs(game_id: int):
-    refs.remove(PlayerGameRefQuery.game_id == game_id)
+    db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+    player_game_ref_query = create_database_query()
+    try:
+        refs.remove(player_game_ref_query.game_id == game_id)
+    finally:
+        db.close()
