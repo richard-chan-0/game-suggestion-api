@@ -145,8 +145,9 @@ This project is configured for deployment to AWS Lambda using the AWS Serverless
 
    This command will:
 
-   - Install all dependencies from `requirements.txt` in a Lambda-compatible environment.
+   - Install all dependencies from `requirements.layer.txt` in a Lambda-compatible environment.
    - Package your source code and dependencies for deployment.
+   - run this command: `pip install -r requirements.layer.txt -t layer/python/lib/python3.12/site-packages`
 
 2. **Deploy the Application**:
 
