@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Description: >
-  Game Suggestion API - Flask app deployed to AWS Lambda
+  Game Suggestion API - AWS app to manage players, games, and create game suggestions.
 
 Globals:
   Function:
@@ -10,11 +10,20 @@ Globals:
     MemorySize: 512
     Runtime: python3.12
 
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Deployment stage (dev or prod)
+
 Resources:
   SharedLogicLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: game-suggestion-api-shared-layer
+      LayerName: !Sub "game-suggestion-api-shared-layer-${StageName}"
       ContentUri: shared-logic-layer/
       CompatibleRuntimes:
         - python3.12
@@ -23,7 +32,7 @@ Resources:
   SharedDependenciesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: game-suggestion-api-dependencies-layer
+      LayerName: !Sub "game-suggestion-api-dependencies-layer-${StageName}"
       ContentUri: dependency-layer/
       CompatibleRuntimes:
         - python3.12
@@ -32,7 +41,7 @@ Resources:
   RestApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: game-suggestion-api-rest-function
+      FunctionName: !Sub "game-suggestion-api-rest-function-${StageName}"
       Handler: lambda_handler.lambda_handler
       CodeUri: lambdas/rest/
       Runtime: python3.12
@@ -63,28 +72,40 @@ Resources:
   RestApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: game-suggestion-api-rest-api
-      StageName: Prod
+      Name: !Sub "game-suggestion-api-rest-api-${StageName}"
+      StageName: !Ref StageName
       Cors:
         AllowMethods: "'GET,POST'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
 
-  GrpcApiFunction:
+  CommandsApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: game-suggestion-api-grpc-function
+      FunctionName: !Sub "game-suggestion-api-commands-function-${StageName}"
       Handler: lambda_handler.lambda_handler
-      CodeUri: lambdas/grpc/
+      CodeUri: lambdas/commands/
       Runtime: python3.12
       Description: Game Suggestion API Lambda Function
       Events:
-        GetCommands:
+        RefreshPlayerGames:
           Type: Api
           Properties:
-            Path: /commands
+            Path: /refresh
             Method: GET
-            RestApiId: !Ref GrpcApi
+            RestApiId: !Ref CommandsApi
+        SharedGames:
+          Type: Api
+          Properties:
+            Path: /shared
+            Method: GET
+            RestApiId: !Ref CommandsApi
+        SuggestGames:
+          Type: Api
+          Properties:
+            Path: /suggest
+            Method: GET
+            RestApiId: !Ref CommandsApi
       Layers:
         - !Ref SharedLogicLayer
         - !Ref SharedDependenciesLayer
@@ -95,12 +116,11 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Ref TinyDBBucket
 
-  GrpcApi:
-    # TODO: protocol is REST needs to be fixed to grpc if available
+  CommandsApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: game-suggestion-api-grpc-api
-      StageName: Prod # stages?
+      Name: !Sub "game-suggestion-api-commands-api-${StageName}"
+      StageName: !Ref StageName
       Cors:
         AllowMethods: "'GET,POST'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
@@ -120,8 +140,8 @@ Resources:
 Outputs:
   RestApiUrl:
     Description: "API Gateway endpoint URL for REST API"
-    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/${StageName}/"
 
-  GrpcApiUrl:
-    Description: "API Gateway endpoint URL for gRPC API"
-    Value: !Sub "https://${GrpcApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  CommandsApiUrl:
+    Description: "API Gateway endpoint URL for Commands API"
+    Value: !Sub "https://${CommandsApi}.execute-api.${AWS::Region}.amazonaws.com/${StageName}/"

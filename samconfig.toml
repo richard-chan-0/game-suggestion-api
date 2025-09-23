@@ -1,11 +1,24 @@
 version = 0.1
 
-[default.deploy.parameters]
-stack_name = "game-suggestion-api"
+[dev]
+[dev.deploy.parameters]
+stack_name = "game-suggestion-api-dev"
+parameter_overrides="StageName=\"dev\""
 resolve_s3 = true
-s3_prefix = "game-suggestion-api"
+s3_prefix = "game-suggestion-api-dev"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-disable_rollback = true
 image_repositories = []
+
+[prod]
+[prod.deploy.parameters]
+stack_name = "game-suggestion-api-prod"
+parameter_overrides="StageName=\"prod\""
+resolve_s3 = true
+s3_prefix = "game-suggestion-api-prod"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+
