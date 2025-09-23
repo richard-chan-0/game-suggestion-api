@@ -1,6 +1,6 @@
 from dataclasses import asdict
 from src.app.database.entities import *
-from src.app.lib.exceptions import DataException
+from src.app.lib.exceptions import DatabaseException
 from src.app.database.constants import PLAYER_TABLE_NAME
 from src.app.database.entity_factory import (
     create_database_reader,
@@ -56,7 +56,7 @@ def add_player(player: Player):
     logger.info("inserting new player")
     existing_player = read_player(player.steam_id)
     if existing_player:
-        raise DataException("player already onboarded")
+        raise DatabaseException("player already onboarded")
 
     db, players = create_database_reader(PLAYER_TABLE_NAME)
     try:
@@ -86,7 +86,7 @@ def remove_player(steam_id: str):
 def update_player(steam_id: str, updates: dict):
     id = get_player_id(steam_id)
     if id == -1:
-        raise DataException("no player found")
+        raise DatabaseException("no player found")
     db, players = create_database_reader(PLAYER_TABLE_NAME)
     try:
         players.update(updates, doc_ids=[id])

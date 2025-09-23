@@ -7,4 +7,4 @@ db.json
 .vscode
 .copilot
 .aws-sam
-scratch.txt
+*-layer

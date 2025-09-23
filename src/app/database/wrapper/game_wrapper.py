@@ -1,6 +1,6 @@
 from dataclasses import asdict
 from src.app.database.entities import *
-from src.app.lib.exceptions import DataException
+from src.app.lib.exceptions import DatabaseException
 from src.app.database.entity_factory import (
     create_database_reader,
     create_database_query,
@@ -33,7 +33,7 @@ def get_game(game_id: int):
     try:
         game = games.get(doc_id=game_id)
         if not game:
-            raise DataException("no game found")
+            raise DatabaseException("no game found")
         return game
     finally:
         db.close()
@@ -43,7 +43,7 @@ def add_game(game: Game):
     logger.info("inserting new game: %s", game.name)
     existing_game = read_game(game.name)
     if existing_game:
-        raise DataException(f"game already exists: {existing_game['name']}")
+        raise DatabaseException(f"game already exists: {existing_game['name']}")
     db, games = create_database_reader(GAME_TABLE_NAME)
     try:
         return games.insert(asdict(game))
@@ -64,7 +64,7 @@ def remove_game(name: str):
 def update_game(name: str, updates: dict):
     game_id = get_game_id(name)
     if game_id == -1:
-        raise DataException("game does not exist")
+        raise DatabaseException("game does not exist")
     db, games = create_database_reader(GAME_TABLE_NAME)
     try:
         games.update(updates, doc_ids=[game_id])

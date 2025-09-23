@@ -18,48 +18,6 @@ A FastAPI-based API for suggesting multiplayer games based on Steam libraries, w
 - **Steam API**: For fetching player game libraries.
 - **Mangum**: ASGI adapter for running FastAPI on AWS Lambda.
 
-### **Project Structure**
-
-```
-game-suggestion-api/
-├── src/
-│   ├── __init__.py
-│   ├── lambda_handler.py         # Entry point for AWS Lambda
-│   ├── app/
-│   │   ├── __init__.py
-│   │   ├── database/             # Database layer
-│   │   │   ├── constants.py
-│   │   │   ├── entities.py
-│   │   │   ├── entity_factory.py
-│   │   │   ├── wrapper/          # Database wrappers
-│   │   │       ├── database_wrapper.py
-│   │   │       ├── game_wrapper.py
-│   │   │       ├── player_wrapper.py
-│   │   │       ├── ref_wrapper.py
-│   │   ├── lib/                  # Utility functions and exceptions
-│   │   │   ├── exceptions.py
-│   │   │   ├── string_utils.py
-│   │   ├── route/                # API routes
-│   │       ├── router/
-│   │           ├── commands.py
-│   │           ├── game.py
-│   │           ├── player.py
-│   ├── service/
-│       ├── apis/                 # External API integrations
-│       │   ├── openai_api_wrapper.py
-│       │   ├── steam_api_wrapper.py
-│       ├── logic/                # Business logic
-│           ├── commands.py
-│           ├── game.py
-│           ├── player.py
-├── requirements.txt              # Python dependencies
-├── README.md                     # Documentation
-├── template.yaml                 # AWS SAM template for deployment
-└── tests/                        # Unit tests
-```
-
----
-
 ## Features
 
 - **Player Management**:
@@ -145,8 +103,9 @@ This project is configured for deployment to AWS Lambda using the AWS Serverless
 
    This command will:
 
-   - Install all dependencies from `requirements.txt` in a Lambda-compatible environment.
+   - Install all dependencies from `requirements.layer.txt` in a Lambda-compatible environment.
    - Package your source code and dependencies for deployment.
+   - run this command: `pip install -r requirements.layer.txt -t layer/python/lib/python3.12/site-packages`
 
 2. **Deploy the Application**:
 
@@ -163,6 +122,30 @@ This project is configured for deployment to AWS Lambda using the AWS Serverless
    - Navigate to your function and add `OPENAI_KEY`, `STEAM_API_KEY`, and `TINYDB_BUCKET` as environment variables.
 
    Alternatively, you can add these to the `Environment` section in `template.yaml` (not recommended for secrets in source control).
+
+---
+
+### Using `copy_src_to_layer.sh` for Lambda Layers
+
+To ensure the `src` folder is included in the `shared-logic-layer` for Lambda layers, use the provided `copy_src_to_layer.sh` script. This script copies the `src` folder into the `shared-logic-layer/python` directory, which is required for AWS Lambda layers.
+
+#### Steps:
+
+1. Run the script to copy the `src` folder:
+
+   ```sh
+   ./copy_src_to_layer.sh
+   ```
+
+2. Verify the contents of the `shared-logic-layer/python` directory to ensure the `src` folder is copied correctly.
+
+3. Proceed with the SAM build and deploy steps as usual:
+   ```sh
+   sam build
+   sam deploy --guided
+   ```
+
+This ensures that your custom modules in the `src` folder are available in the Lambda layer under the `/opt/python` directory.
 
 ---
 

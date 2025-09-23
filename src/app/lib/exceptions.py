@@ -1,10 +1,18 @@
-class SteamApiException(Exception):
+class ApplicationException(Exception):
     pass
 
 
-class DataException(Exception):
+class DatabaseException(ApplicationException):
     pass
 
 
-class AwsException(Exception):
+class AwsException(ApplicationException):
+    pass
+
+
+class ApiException(ApplicationException):
+    pass
+
+
+class SteamApiException(ApiException):
     pass
