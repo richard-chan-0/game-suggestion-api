@@ -1,8 +1,8 @@
 from os import getenv
-from src.app.database.entities import *
-from src.app.lib.string_utils import clean_name
+from src.database.entities import *
+from src.lib.string_utils import clean_name
+from src.database.constants import DEV_DATABASE_PATH, PROD_DATABASE_PATH
 from tinydb import TinyDB, Query
-from src.app.database.constants import DEV_DATABASE_PATH, PROD_DATABASE_PATH
 from logging import getLogger
 
 logger = getLogger(__name__)

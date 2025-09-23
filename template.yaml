@@ -14,42 +14,42 @@ Resources:
   SharedLogicLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: game-suggestion-api-shared
+      LayerName: game-suggestion-api-shared-layer
       ContentUri: shared-logic-layer/
       CompatibleRuntimes:
         - python3.12
-      Description: Shared code layer for Lambda functions
+      Description: Shared logic layer for Lambda functions
 
   SharedDependenciesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: game-suggestion-api-dependencies
+      LayerName: game-suggestion-api-dependencies-layer
       ContentUri: dependency-layer/
       CompatibleRuntimes:
         - python3.12
       Description: Shared dependencies layer for Lambda functions
 
-  PlayerApiFunction:
+  RestApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: player-api
+      FunctionName: game-suggestion-api-rest-function
       Handler: lambda_handler.lambda_handler
       CodeUri: lambdas/rest/
       Runtime: python3.12
-      Description: Player API Lambda Function
+      Description: Game Suggestion API Lambda Function
       Events:
         GetPlayerByName:
           Type: Api
           Properties:
             Path: /player
             Method: GET
-            RestApiId: !Ref PlayerApi
+            RestApiId: !Ref RestApi
         AddPlayer:
           Type: Api
           Properties:
             Path: /player
             Method: POST
-            RestApiId: !Ref PlayerApi
+            RestApiId: !Ref RestApi
       Layers:
         - !Ref SharedLogicLayer
         - !Ref SharedDependenciesLayer
@@ -60,11 +60,47 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Ref TinyDBBucket
 
-  PlayerApi:
+  RestApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: PlayerApi
+      Name: game-suggestion-api-rest-api
       StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  GrpcApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: game-suggestion-api-grpc-function
+      Handler: lambda_handler.lambda_handler
+      CodeUri: lambdas/grpc/
+      Runtime: python3.12
+      Description: Game Suggestion API Lambda Function
+      Events:
+        GetCommands:
+          Type: Api
+          Properties:
+            Path: /commands
+            Method: GET
+            RestApiId: !Ref GrpcApi
+      Layers:
+        - !Ref SharedLogicLayer
+        - !Ref SharedDependenciesLayer
+      Environment:
+        Variables:
+          TINYDB_BUCKET: !Ref TinyDBBucket
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref TinyDBBucket
+
+  GrpcApi:
+    # TODO: protocol is REST needs to be fixed to grpc if available
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: game-suggestion-api-grpc-api
+      StageName: Prod # stages?
       Cors:
         AllowMethods: "'GET,POST'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
@@ -82,6 +118,10 @@ Resources:
               SSEAlgorithm: AES256
 
 Outputs:
-  ApiUrl:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${PlayerApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  RestApiUrl:
+    Description: "API Gateway endpoint URL for REST API"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+  GrpcApiUrl:
+    Description: "API Gateway endpoint URL for gRPC API"
+    Value: !Sub "https://${GrpcApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

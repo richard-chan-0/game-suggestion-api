@@ -1,11 +1,11 @@
 from dataclasses import asdict
-from src.app.database.entities import *
-from src.app.lib.exceptions import DatabaseException
-from src.app.database.entity_factory import (
+from src.database.entities import *
+from src.lib.exceptions import DatabaseException
+from src.database.entity_factory import (
     create_database_reader,
     create_database_query,
 )
-from src.app.database.constants import GAME_TABLE_NAME
+from src.database.constants import GAME_TABLE_NAME
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 from boto3 import client
 from botocore.exceptions import ClientError
-from src.app.lib.exceptions import AwsException
+from src.lib.exceptions import AwsException
 from os import getenv
 from logging import getLogger
 
