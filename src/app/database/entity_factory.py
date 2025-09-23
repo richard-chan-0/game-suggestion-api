@@ -29,9 +29,9 @@ def create_reference(steam_id, app_id):
 def create_database_reader(table_name: str) -> tuple[TinyDB, TinyDB.table]:
     """
     Create a TinyDB reader for the specified table.
-    Uses different database files based on the FLASK_ENV environment variable.
+    Uses different database files based on the TINYDB_BUCKET environment variable.
     """
-    is_production = getenv("FLASK_ENV") == "production"
+    is_production = bool(getenv("TINYDB_BUCKET", ""))
     db_path = PROD_DATABASE_PATH if is_production else DEV_DATABASE_PATH
     db = TinyDB(db_path)
     table = db.table(table_name)

@@ -11,36 +11,62 @@ Globals:
     Runtime: python3.12
 
 Resources:
-  GameSuggestionApiFunction:
+  SharedLogicLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: game-suggestion-api-shared
+      ContentUri: shared-logic-layer/
+      CompatibleRuntimes:
+        - python3.12
+      Description: Shared code layer for Lambda functions
+
+  SharedDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: game-suggestion-api-dependencies
+      ContentUri: dependency-layer/
+      CompatibleRuntimes:
+        - python3.12
+      Description: Shared dependencies layer for Lambda functions
+
+  PlayerApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: game-suggestion-api
-      Handler: src/lambda_handler.lambda_handler
-      CodeUri: .
+      FunctionName: player-api
+      Handler: lambda_handler.lambda_handler
+      CodeUri: lambdas/rest/
       Runtime: python3.12
-      Description: Game Suggestion API Lambda Function
+      Description: Player API Lambda Function
       Events:
-        Api:
+        GetPlayerByName:
           Type: Api
           Properties:
-            Path: /{proxy+}
-            Method: ANY
-            RestApiId: !Ref GameSuggestionApi
+            Path: /player
+            Method: GET
+            RestApiId: !Ref PlayerApi
+        AddPlayer:
+          Type: Api
+          Properties:
+            Path: /player
+            Method: POST
+            RestApiId: !Ref PlayerApi
+      Layers:
+        - !Ref SharedLogicLayer
+        - !Ref SharedDependenciesLayer
       Environment:
         Variables:
-          FLASK_ENV: production
           TINYDB_BUCKET: !Ref TinyDBBucket
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref TinyDBBucket
 
-  GameSuggestionApi:
+  PlayerApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: GameSuggestionApi
+      Name: PlayerApi
       StageName: Prod
       Cors:
-        AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        AllowMethods: "'GET,POST'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
 
@@ -58,4 +84,4 @@ Resources:
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${GameSuggestionApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${PlayerApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
