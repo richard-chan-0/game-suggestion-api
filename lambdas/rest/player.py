@@ -1,6 +1,6 @@
-from src.app.database.entity_factory import create_player
-from src.app.database.wrapper import player_wrapper
-from src.app.lib.api_utils import create_message_response
+from src.database.entity_factory import create_player
+from src.database.wrapper import player_wrapper
+from src.apis.api_utils import create_message_response
 import logging
 
 logger = logging.getLogger(__name__)

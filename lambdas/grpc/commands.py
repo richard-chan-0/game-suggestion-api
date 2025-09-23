@@ -3,13 +3,13 @@ grpc style command specific api logic
 """
 
 from logging import getLogger
-from src.app.database.entities import Game
-from src.app.database.entity_factory import create_game, create_reference
-from src.app.service.apis.openai_api_wrapper import get_suggestion
-from src.app.lib.api_utils import create_message_response
-from src.app.database.wrapper import player_wrapper, ref_wrapper, game_wrapper
-from src.app.lib.exceptions import DatabaseException
-from src.app.service.apis.steam_api_wrapper import get_owned_games
+from src.database.entities import Game
+from src.database.entity_factory import create_game, create_reference
+from src.apis.openai_api_wrapper import get_suggestion
+from src.apis.api_utils import create_message_response
+from src.database.wrapper import player_wrapper, ref_wrapper, game_wrapper
+from src.lib.exceptions import DatabaseException
+from src.apis.steam_api_wrapper import get_owned_games
 
 logger = getLogger(__name__)
 
