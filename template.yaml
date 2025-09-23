@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Description: >
-  Game Suggestion API - Flask app deployed to AWS Lambda
+  Game Suggestion API - AWS app to manage players, games, and create game suggestions.
 
 Globals:
   Function:
@@ -88,10 +88,22 @@ Resources:
       Runtime: python3.12
       Description: Game Suggestion API Lambda Function
       Events:
-        GetCommands:
+        RefreshPlayerGames:
           Type: Api
           Properties:
-            Path: /commands
+            Path: /refresh
+            Method: GET
+            RestApiId: !Ref CommandsApi
+        SharedGames:
+          Type: Api
+          Properties:
+            Path: /shared
+            Method: GET
+            RestApiId: !Ref CommandsApi
+        SuggestGames:
+          Type: Api
+          Properties:
+            Path: /suggest
             Method: GET
             RestApiId: !Ref CommandsApi
       Layers:
@@ -117,7 +129,7 @@ Resources:
   TinyDBBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${AWS::StackName}-tinydb-${AWS::AccountId}-${StageName}"
+      BucketName: !Sub "${AWS::StackName}-tinydb-${AWS::AccountId}"
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
