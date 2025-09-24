@@ -84,7 +84,7 @@ Resources:
     Properties:
       FunctionName: !Sub "game-suggestion-api-commands-function-${StageName}"
       Handler: lambda_handler.lambda_handler
-      CodeUri: lambdas/commands/
+      CodeUri: lambdas/commands
       Runtime: python3.12
       Description: Game Suggestion API Lambda Function
       Events:

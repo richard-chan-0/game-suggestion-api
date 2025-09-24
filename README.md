@@ -61,22 +61,37 @@ This project uses an AWS Lambda-first architecture, leveraging AWS API Gateway f
 
 ### Deployment Steps
 
-1. **Prepare the Shared Layer**:
+1. **Run the Deploy Script**:
+
+   Use the `deploy.sh` script to automate the deployment process. Pass the desired environment (e.g., `dev`, `prod`) as a parameter:
 
    ```sh
-   ./copy_src_to_layer.sh
+   ./deploy.sh <environment>
    ```
 
-2. **Build the Application**:
+   Replace `<environment>` with the appropriate environment name.
 
-   ```sh
-   sam build
-   ```
+2. **Manual Deployment (Optional)**:
 
-3. **Deploy the Application**:
-   ```sh
-   sam deploy --guided --config-file [dev,prod]
-   ```
+   If you prefer to run the commands manually, follow these steps:
+
+   - **Prepare the Shared Layer**:
+
+     ```sh
+     ./copy_src_to_layer.sh
+     ```
+
+   - **Build the Application**:
+
+     ```sh
+     sam build
+     ```
+
+   - **Deploy the Application**:
+
+     ```sh
+     sam deploy --guided --config-file [dev,prod]
+     ```
 
 ---
 

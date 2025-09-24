@@ -1,4 +1,4 @@
-from lib.exceptions import DatabaseException
+from src.lib.exceptions import DatabaseException
 from src.database.entity_factory import create_player
 from src.database.wrapper import player_wrapper
 from src.apis.api_utils import create_message_response
