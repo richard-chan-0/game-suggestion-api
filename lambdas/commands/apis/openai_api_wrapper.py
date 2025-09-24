@@ -4,10 +4,13 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-client = OpenAI(api_key=getenv("OPENAI_KEY"))
-
 
 def ask_ai(ai_prompt):
+    logger.info("retrieving openai key from environment variables")
+    api_key = getenv("OPENAI_KEY")
+
+    logger.info("creating ai client")
+    client = OpenAI(api_key=api_key)
     return client.responses.create(
         model="gpt-4o-mini",
         input=ai_prompt,
@@ -27,8 +30,11 @@ def create_ai_prompt(list_games: list[str], number_of_players: int):
         and able to play with {number_of_players} players"
 
 
-async def get_suggestion(list_games: list[str], number_of_players: int):
+def get_suggestion(list_games: list[str], number_of_players: int):
+    logger.info("creating ai prompt")
     ai_prompt = create_ai_prompt(list_games, number_of_players)
-    response = await ask_ai(ai_prompt)
+
+    logger.info("asking ai for suggestion")
+    response = ask_ai(ai_prompt)
     logger.info(response)
-    return response.output_text if response else None
+    return response.output_text if response else ""

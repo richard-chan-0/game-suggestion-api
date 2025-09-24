@@ -1,8 +1,8 @@
 from logging import getLogger
 from refresh import refresh_player_games
 from shared import get_shared_games
-from src.apis.openai_api_wrapper import get_suggestion
-from src.apis.steam_api_wrapper import get_owned_games
+from apis.openai_api_wrapper import get_suggestion
+from apis.steam_api_wrapper import get_owned_games
 from src.apis.api_utils import create_message_response
 from src.database.wrapper import player_wrapper
 

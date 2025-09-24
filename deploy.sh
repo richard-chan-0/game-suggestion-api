@@ -15,3 +15,6 @@ ENVIRONMENT=$1
 ./copy_src_to_layer.sh
 sam build
 sam deploy --config-env "$ENVIRONMENT"
+
+# Reminder to update environment variables after deployment
+echo "Reminder: Update environment variables for your Lambda functions. AWS Lambda clears them on each deploy."
