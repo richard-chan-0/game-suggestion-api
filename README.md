@@ -2,7 +2,7 @@
 
 ## Overview
 
-A FastAPI-based API for suggesting multiplayer games based on Steam libraries, with OpenAI integration for game recommendations. The application is designed to be modular, scalable, and deployable to AWS Lambda using the AWS Serverless Application Model (SAM).
+This project uses an AWS Lambda-first architecture, leveraging AWS API Gateway for RESTful endpoints and Lambda functions for serverless execution. While FastAPI is still used for local development and testing, the primary deployment strategy has shifted to AWS-native services.
 
 ---
 
@@ -10,142 +10,73 @@ A FastAPI-based API for suggesting multiplayer games based on Steam libraries, w
 
 ### **Technologies**
 
-- **FastAPI**: For building the API.
-- **AWS Lambda**: For serverless deployment.
-- **API Gateway**: To expose the Lambda function as an HTTP endpoint.
-- **TinyDB**: Lightweight NoSQL database for storing player and game data.
-- **OpenAI API**: For generating game suggestions.
-- **Steam API**: For fetching player game libraries.
-- **Mangum**: ASGI adapter for running FastAPI on AWS Lambda.
+- **AWS Lambda**: Core compute layer for serverless execution.
+- **API Gateway**: Exposes RESTful endpoints for the Lambda functions.
+- **FastAPI**: Used for local development and testing.
+- **TinyDB**: Lightweight NoSQL database for local data storage.
+- **OpenAI API**: Provides AI-powered game recommendations.
+- **Steam API**: Fetches player game libraries.
+- **Shared Layers**: Common dependencies and shared code are packaged as Lambda layers.
 
-## Features
+### **Lambda Handlers**
 
-- **Player Management**:
-  - Add and search for players by Steam ID or name.
-  - Retrieve player details by ID.
-- **Game Management**:
-  - Refresh and store owned games for players from the Steam API.
-  - Get shared games between players.
-  - Get AI-powered game suggestions for a group.
-- **Database**:
-  - Modular database layer using TinyDB for lightweight storage.
-- **Serverless Deployment**:
-  - Deployable to AWS Lambda with API Gateway integration.
+1. **REST Endpoints**:
+
+   - Located in `lambdas/rest/lambda_handler.py`.
+   - Handles RESTful API requests for player and game management.
+
+2. **RPC-like Endpoints**:
+   - Located in `lambdas/commands/lambda_handler.py`.
+   - Handles command-based operations like refreshing game data or executing batch tasks.
 
 ---
 
-## Setup (Local Development)
+## Technical Considerations
 
-### 1. Clone the Repository
+### **Shared Dependencies and Code**
 
-```sh
-git clone https://github.com/yourusername/game-suggestion-api.git
-cd game-suggestion-api
-```
+- Shared logic and dependencies are packaged as Lambda layers to reduce duplication and improve maintainability.
+- Use the `copy_src_to_layer.sh` script to copy the `src` folder into the `shared-logic-layer/python` directory.
 
-### 2. Install Dependencies
+### **Environment Variables**
 
-It's recommended to use a virtual environment:
+- Environment variables like `OPENAI_KEY`, `STEAM_API_KEY`, and `TINYDB_BUCKET` are configured in the Lambda function settings.
 
-```sh
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+### **Local Development**
 
-### 3. Environment Variables
-
-Set your API keys as environment variables:
-
-```sh
-export OPENAI_KEY="your_openai_api_key"
-export STEAM_API_KEY="your_steam_api_key"
-export TINYDB_BUCKET="your_s3_bucket_name"
-```
-
-Alternatively, create a `.env` file in the project root:
-
-```
-OPENAI_KEY=your_openai_api_key
-STEAM_API_KEY=your_steam_api_key
-TINYDB_BUCKET=your_s3_bucket_name
-```
-
-### 4. Run the API Locally
-
-Use Uvicorn to run the FastAPI application:
-
-```sh
-uvicorn src.__init__:app --reload --host 0.0.0.0 --port 5000
-```
-
-The API will be available at `http://localhost:5000/`.
+- FastAPI is used for local development to simulate API behavior.
+- Run the FastAPI app locally using Uvicorn:
+  ```sh
+  uvicorn src.__init__:app --reload --host 0.0.0.0 --port 5000
+  ```
 
 ---
 
 ## Deployment to AWS Lambda
 
-This project is configured for deployment to AWS Lambda using the AWS Serverless Application Model (SAM).
-
 ### Prerequisites
 
-- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with your credentials.
-- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html).
-- Docker (optional, but recommended for local builds).
+- AWS CLI and SAM CLI installed and configured.
+- Docker installed for building dependencies.
 
 ### Deployment Steps
 
-1. **Build the Application**:
-
-   ```sh
-   sam build
-   ```
-
-   This command will:
-
-   - Install all dependencies from `requirements.layer.txt` in a Lambda-compatible environment.
-   - Package your source code and dependencies for deployment.
-   - run this command: `pip install -r requirements.layer.txt -t layer/python/lib/python3.12/site-packages`
-
-2. **Deploy the Application**:
-
-   ```sh
-   sam deploy --guided
-   ```
-
-   - The `--guided` flag will prompt you for stack name, AWS region, and other deployment options.
-   - After deployment, SAM will output the API Gateway endpoint URL.
-
-3. **Set Environment Variables in Lambda**:
-
-   - After deployment, go to the AWS Lambda Console.
-   - Navigate to your function and add `OPENAI_KEY`, `STEAM_API_KEY`, and `TINYDB_BUCKET` as environment variables.
-
-   Alternatively, you can add these to the `Environment` section in `template.yaml` (not recommended for secrets in source control).
-
----
-
-### Using `copy_src_to_layer.sh` for Lambda Layers
-
-To ensure the `src` folder is included in the `shared-logic-layer` for Lambda layers, use the provided `copy_src_to_layer.sh` script. This script copies the `src` folder into the `shared-logic-layer/python` directory, which is required for AWS Lambda layers.
-
-#### Steps:
-
-1. Run the script to copy the `src` folder:
+1. **Prepare the Shared Layer**:
 
    ```sh
    ./copy_src_to_layer.sh
    ```
 
-2. Verify the contents of the `shared-logic-layer/python` directory to ensure the `src` folder is copied correctly.
+2. **Build the Application**:
 
-3. Proceed with the SAM build and deploy steps as usual:
    ```sh
    sam build
-   sam deploy --guided
    ```
 
-This ensures that your custom modules in the `src` folder are available in the Lambda layer under the `/opt/python` directory.
+3. **Deploy the Application**:
+   ```sh
+   sam deploy --guided --config-file [dev,prod]
+   ```
 
 ---
 

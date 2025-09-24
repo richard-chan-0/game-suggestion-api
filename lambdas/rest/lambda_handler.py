@@ -1,6 +1,6 @@
 from logging import getLogger, INFO, basicConfig
 from json import dumps
-from events import event_processor
+from event_controller import event_controller
 from src.database.aws_tiny_db_handler import AwsTinyDBHandler
 
 basicConfig(level=INFO, force=True)
@@ -13,7 +13,7 @@ def lambda_handler(event, context):
     db_handler = AwsTinyDBHandler()
     db_handler.download_db_from_s3()
 
-    event_response = event_processor(event)
+    event_response = event_controller(event)
 
     logger.info("Event processed successfully, response: %s", event_response)
     db_handler.upload_db_to_s3()

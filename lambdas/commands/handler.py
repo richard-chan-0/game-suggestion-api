@@ -1,6 +1,6 @@
 from logging import getLogger
-from shared import get_shared_games
 from refresh import refresh_player_games
+from shared import get_shared_games
 from src.apis.openai_api_wrapper import get_suggestion
 from src.apis.steam_api_wrapper import get_owned_games
 from src.apis.api_utils import create_message_response
@@ -51,60 +51,3 @@ def suggest_games(steam_ids: list[str]):
         return {"suggestions": suggestions}
     else:
         return create_message_response("no suggestion")
-
-
-def process_gets(event):
-    path = event.get("path")
-
-    if path == "/refresh":
-        return refresh_shared_games()
-    elif path == "/shared":
-        return get_shared_games_for_all_players()
-    elif path == "/suggest":
-        return suggest_games_for_all_players()
-
-    return {
-        "statusCode": 400,
-        "body": "Invalid GET request path",
-    }
-
-
-def process_posts(event):
-    path = event.get("path")
-    body = event.get("body", {})
-
-    if path == "/shared":
-        steam_ids = body.get("steam_ids", [])
-        if steam_ids:
-            return get_shared_games_for_steam_ids(steam_ids)
-        else:
-            return {
-                "statusCode": 400,
-                "body": "Missing 'steam_ids' in request body",
-            }
-    elif path == "/suggest":
-        steam_ids = body.get("steam_ids", [])
-        if steam_ids:
-            return suggest_games(steam_ids)
-        else:
-            return {
-                "statusCode": 400,
-                "body": "Missing 'steam_ids' in request body",
-            }
-    return {
-        "statusCode": 400,
-        "body": "Invalid POST request path",
-    }
-
-
-def event_processor(event):
-    """
-    Process incoming events and route them to the appropriate handler.
-    """
-    method = event.get("httpMethod")
-
-    if method == "GET":
-        return process_gets(event)
-
-    elif method == "POST":
-        return process_posts(event)
