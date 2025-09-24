@@ -79,6 +79,8 @@ def remove_player(steam_id: str):
     player_query = create_database_query()
     try:
         players.remove(player_query.steam_id == steam_id)
+    except Exception as e:
+        raise DatabaseException(f"error removing player: {e}")
     finally:
         db.close()
 
@@ -90,5 +92,13 @@ def update_player(steam_id: str, updates: dict):
     db, players = create_database_reader(PLAYER_TABLE_NAME)
     try:
         players.update(updates, doc_ids=[id])
+    finally:
+        db.close()
+
+
+def get_all_players():
+    db, players = create_database_reader(PLAYER_TABLE_NAME)
+    try:
+        return players.all()
     finally:
         db.close()

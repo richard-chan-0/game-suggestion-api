@@ -3,6 +3,7 @@ from src.database.entities import *
 from src.lib.string_utils import clean_name
 from src.database.constants import DEV_DATABASE_PATH, PROD_DATABASE_PATH
 from tinydb import TinyDB, Query
+from tinydb.table import Table
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -26,7 +27,7 @@ def create_reference(steam_id, app_id):
     return PlayerGameRef(steam_id, app_id)
 
 
-def create_database_reader(table_name: str) -> tuple[TinyDB, TinyDB.table]:
+def create_database_reader(table_name: str) -> tuple[TinyDB, Table]:
     """
     Create a TinyDB reader for the specified table.
     Uses different database files based on the TINYDB_BUCKET environment variable.

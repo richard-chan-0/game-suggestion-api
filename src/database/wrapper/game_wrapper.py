@@ -57,6 +57,8 @@ def remove_game(name: str):
     games_query = create_database_query()
     try:
         games.remove(games_query.name == name)
+    except Exception as e:
+        raise DatabaseException(f"error removing game: {e}")
     finally:
         db.close()
 
@@ -68,5 +70,15 @@ def update_game(name: str, updates: dict):
     db, games = create_database_reader(GAME_TABLE_NAME)
     try:
         games.update(updates, doc_ids=[game_id])
+    except Exception as e:
+        raise DatabaseException(f"error updating game: {e}")
+    finally:
+        db.close()
+
+
+def get_all_games():
+    db, games = create_database_reader(GAME_TABLE_NAME)
+    try:
+        return games.all()
     finally:
         db.close()

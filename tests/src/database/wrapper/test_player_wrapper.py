@@ -2,17 +2,23 @@ from pytest import fixture, raises
 from src.database.wrapper import player_wrapper as pw
 from src.database.entities import Player
 from tinydb import TinyDB
-from src.lib.exceptions import DataException
+from src.lib.exceptions import DatabaseException
 
 
 @fixture(autouse=True)
 def setup_db(monkeypatch, tmp_path):
     test_db_path = tmp_path / "test_db.json"
-    test_db = TinyDB(str(test_db_path))
-    monkeypatch.setattr(pw, "db", test_db)
-    monkeypatch.setattr(pw, "players", test_db.table("players"))
-    yield
-    test_db.close()
+
+    # Mock the create_database_reader function to return a new TinyDB instance for each call
+    def mock_create_database_reader(table_name):
+        test_db = TinyDB(str(test_db_path))
+        return test_db, test_db.table(table_name)
+
+    # Apply the mock to the player_wrapper module
+    monkeypatch.setattr(
+        "src.database.wrapper.player_wrapper.create_database_reader",
+        mock_create_database_reader,
+    )
 
 
 def test_add_and_read_player():
@@ -28,7 +34,7 @@ def test_add_and_read_player():
 def test_add_player_duplicate():
     player = Player(steam_id="123", first_name="test", last_name="user")
     pw.add_player(player)
-    with raises(DataException):
+    with raises(DatabaseException):
         pw.add_player(player)
 
 
@@ -36,7 +42,7 @@ def test_remove_player():
     player = Player(steam_id="123", first_name="test", last_name="user")
     pw.add_player(player)
     pw.remove_player("123")
-    all_players = pw.players.all()
+    all_players = pw.get_all_players()
     assert not all_players
 
 

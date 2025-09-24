@@ -69,3 +69,11 @@ def remove_game_refs(game_id: int):
         refs.remove(player_game_ref_query.game_id == game_id)
     finally:
         db.close()
+
+
+def get_all_refs():
+    db, refs = create_database_reader(PLAYER_GAME_REF_TABLE_NAME)
+    try:
+        return refs.all()
+    finally:
+        db.close()
