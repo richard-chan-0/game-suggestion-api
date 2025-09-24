@@ -1,25 +1,24 @@
-# from openai import OpenAI
+from openai import OpenAI
 from os import getenv
 from logging import getLogger
 
 logger = getLogger(__name__)
 
-# client = OpenAI(api_key=getenv("OPENAI_KEY"))
+client = OpenAI(api_key=getenv("OPENAI_KEY"))
 
 
 def ask_ai(ai_prompt):
-    # return client.responses.create(
-    #     model="gpt-4o-mini",
-    #     input=ai_prompt,
-    #     text={"format": {"type": "text"}},
-    #     reasoning={},
-    #     tools=[],
-    #     temperature=1,
-    #     max_output_tokens=2048,
-    #     top_p=1,
-    #     store=True,
-    # )
-    return {"output_text": "Catan"}
+    return client.responses.create(
+        model="gpt-4o-mini",
+        input=ai_prompt,
+        text={"format": {"type": "text"}},
+        reasoning={},
+        tools=[],
+        temperature=1,
+        max_output_tokens=2048,
+        top_p=1,
+        store=True,
+    )
 
 
 def create_ai_prompt(list_games: list[str], number_of_players: int):
